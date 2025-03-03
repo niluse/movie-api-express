@@ -11,13 +11,22 @@ module.exports.Movie = {
     //   },
         list: async (req, res)=>{
             console.log(req.query); // Burada query'nin gelip gelmediğine bak
-            const { query } = req.query;
+            const { query,filter } = req.query;
 
             if (query) {
-                const movies = await fetchMovies(query);
+                const movies = await fetchMovies(query, filter=='true');
                 await saveMovies(movies);
                 return res.json(movies);
             }
+            if (filter === "true") {
+              const filteredMovies = await Movie.find({
+                  vote_average: { $gte: 7 },
+                  vote_count: { $gte: 1500 },
+                  provider: "Netflix",
+                  region: "TR",
+              }).sort({ release_date: 1 }).limit(5);
+              return res.json(filteredMovies);
+          }
 
   const data = await Movie.find();
   return res.json(data);
