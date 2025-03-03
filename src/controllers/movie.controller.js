@@ -1,36 +1,39 @@
 const { fetchMovies, saveMovies } = require('../services/movie.service');
 const Movie = require("../models/movie.model");
+const {fetchMovieDetails, saveNetflixMovie} = require("../services/netflixMovie.service")
+const NetflixMovie = require('../models/netflixMovie.model');
 
 module.exports.Movie = {
-    // list: async (req, res) => {
-    //     const data = await Movie.find();
-    //     res.status(200).send({
-    //       error: false,
-    //       data: data,
-    //     });
-    //   },
-        list: async (req, res)=>{
-            console.log(req.query); // Burada query'nin gelip gelmediğine bak
-            const { query,filter } = req.query;
 
-            if (query) {
-                const movies = await fetchMovies(query, filter=='true');
-                await saveMovies(movies);
-                return res.json(movies);
-            }
-            if (filter === "true") {
-              const filteredMovies = await Movie.find({
-                  vote_average: { $gte: 7 },
-                  vote_count: { $gte: 1500 },
-                  provider: "Netflix",
-                  region: "TR",
-              }).sort({ release_date: 1 }).limit(5);
-              return res.json(filteredMovies);
-          }
+  list: async (req, res) => {
+    const { query, filter } = req.query;
+  
+    if (query) {
+      const movies = await fetchMovies(query);
+      await saveMovies(movies);
+  
+      for (let movie of movies) {
+        const movieDetails = await fetchMovieDetails(movie.id);
+        await saveNetflixMovie(movieDetails);
+      }
+  
+      return res.json(movies);
+    }
+  
+    if (filter === "true") {
+      const filteredMovies = await Movie.find({
+        vote_average: { $gte: 6 },
+        vote_count: { $gte: 1500 },
+    }).sort({ release_date: 1 }).limit(5);
+    return res.json(filteredMovies);
 
-  const data = await Movie.find();
-  return res.json(data);
-        },
+      const data = await NetflixMovie.find();
+      return res.json(data);
+    }
+  
+    const data = await Movie.find();
+    return res.json(data);
+  },
       create: async (req, res) => {
         const data = await Movie.create(req.body);
         res.status(201).send({
@@ -63,3 +66,40 @@ module.exports.Movie = {
         res.sendStatus(data.deletedCount >= 1 ? 204 : 404);
       },
 }
+
+
+
+
+
+    // list: async (req, res) => {
+    //     const data = await Movie.find();
+    //     res.status(200).send({
+    //       error: false,
+    //       data: data,
+    //     });
+    //   },
+
+
+  //       list: async (req, res)=>{
+  //           console.log(req.query); // Burada query'nin gelip gelmediğine bak
+  //           const { query,filter } = req.query;
+            
+
+  //           if (query) {
+  //               const movies = await fetchMovies(query, filter=='true');
+  //               await saveMovies(movies);
+  //               return res.json(movies);
+  //           }
+  //           if (filter === "true") {
+  //             const filteredMovies = await Movie.find({
+  //                 vote_average: { $gte: 7 },
+  //                 vote_count: { $gte: 1500 },
+  //                 provider: "Netflix",
+  //                 region: "TR",
+  //             }).sort({ release_date: 1 }).limit(5);
+  //             return res.json(filteredMovies);
+  //         }
+
+  // const data = await Movie.find();
+  // return res.json(data);
+  //       },

@@ -4,7 +4,7 @@ require('dotenv').config();
 
 const TMDB_API_KEY =process.env.TMDB_API_KEY
 
-async function fetchMovies(query, filter = false) {
+async function fetchMovies(query) {
     const url = `https://api.themoviedb.org/3/search/movie?query=${query}&api_key=${TMDB_API_KEY}`;
   
     // if (filter) {
@@ -26,8 +26,6 @@ async function saveMovies(movies) {
           popularity: movie.popularity,
           releaseDate: movie.release_date,
           vote_average: movie.vote_average,
-          provider: "Netflix", // Burada sabit ekliyoruz
-          region: "TR",       // Burada sabit ekliyoruz
           poster_path: movie.poster_path,
         });
         console.log(`🎥 Kaydedildi: ${movie.title}`);
